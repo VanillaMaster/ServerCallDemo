@@ -1,0 +1,16 @@
+{  
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitAny": false,
+        "target": "ES2020",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "resolveJsonModule": true,
+        "checkJs": true,
+        "baseUrl": "./"
+    },
+    "exclude": [
+        "./node_modules",
+        "**/node_modules/*"
+    ]
+}

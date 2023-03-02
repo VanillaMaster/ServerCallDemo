@@ -1,0 +1,16 @@
+{  
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitAny": true,
+        "target": "ES2022",
+        "module": "es2022",
+        "checkJs": true,
+        "downlevelIteration": true,
+        "moduleResolution": "Classic",
+        "baseUrl": ".",
+    },
+    "exclude": [
+        "../node_modules",
+        "**/node_modules/*"
+    ]
+}
