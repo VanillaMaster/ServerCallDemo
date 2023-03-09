@@ -2,7 +2,7 @@
 /**
  * @typedef { (reason?: any) => void } rejectType
  * @typedef { (value: any) => void } resolveType
- * @typedef { { name: string; args: string; rejects: rejectType[]; resolves: resolveType[] } } callContainer
+ * @typedef { { name: string; args: string; rejects: rejectType[]; resolves: resolveType[] } } task
  */
 
 export class CallQueue {
@@ -42,6 +42,35 @@ export class CallQueue {
     }
 
     /**
+     * @param { task } task 
+     */
+    async call(task) {
+        let raw, data;
+        try {
+            raw = await fetch(`/API/1/${task.name}`, {
+                body: task.args,
+                method: "POST"
+            });
+            data = await raw.json();
+        } catch (e) {
+            for (const reject of task.rejects) reject(e);
+            return;
+        }
+
+        for (const resolve of task.resolves) resolve(data);
+
+    }
+
+    #tick = CallQueue.#genericTcik.bind(this);
+
+    /**@type { Map<string, task> } */
+    #queue = new Map();
+    #delay = 0;
+    get delay(){
+        return this.#delay;
+    }
+
+    /**
      * @this { CallQueue }
      */
     static #genericTcik(){
@@ -51,29 +80,9 @@ export class CallQueue {
         } else {
             console.log(`server call (${this.#queue.size})`);
             //make calls
-            for (const value of this.#queue.values()) {
-                fetch(`/API/1/${value.name}`, {
-                    body: value.args,
-                    method: "POST"
-                }).then(async (raw)=>{
-                    if (raw.ok) {
-                        const resp = await raw.json();
-                        for (const resolve of value.resolves) resolve(resp);
-                    } else {
-                        for (const reject of value.rejects) reject();
-                    }
-                })
-            }
+            for (const task of this.#queue.values()) { this.call(task) }
             this.#queue.clear();
         }
     }
 
-    #tick = CallQueue.#genericTcik.bind(this);
-
-    /**@type { Map<string, callContainer> } */
-    #queue = new Map();
-    #delay = 0;
-    get delay(){
-        return this.#delay;
-    }
 }
